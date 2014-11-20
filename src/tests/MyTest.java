@@ -28,6 +28,10 @@ public class MyTest extends THTestManager.THTest {
 		{
 			pause(5);
 		}
+		for (int i = 0; i < 10; i ++) {
+			b = c;
+			
+		}
 		System.out.println("The hypotenuse is " + c);
 	}
 	
@@ -37,7 +41,18 @@ public class MyTest extends THTestManager.THTest {
 		double a = 7.0;
 		double b = 9.0;
 		double c = Math.sqrt(a * a + b * b) + d;
-		pause((int) a);
+		if (a == 5.0) {
+			
+			b = c;
+			
+			if (c == b) {
+				c = b;
+			}
+		} else if (a == b) {
+			c = a;
+		} else {
+			a = c;
+		}
 		System.out.println("The hypotenuse is " + c);
 	}
 }

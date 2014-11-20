@@ -11,7 +11,9 @@ import java.util.concurrent.Semaphore;
 /*
  * -Deadlock detection (sort of works)
  * -Tracing (sort of works)
- * Need to figure out how to deal with certain constructs when instrumenting the code: i.e. try/catch blocks
+ * -Need to figure out how to deal with certain constructs when instrumenting the code: i.e. try/catch blocks
+ * 	- Workaround: Use the JVM option "-XX:-UseSplitVerifier"
+ * 	- We can still try to fix this later by manually updating the StackMapTable in each code method (complicated!)
  * Renaming
  * Cleanup
  * Criteria
