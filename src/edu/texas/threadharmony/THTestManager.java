@@ -57,10 +57,6 @@ public class THTestManager {
 			}
 		}
 		
-		for (Thread thread : threads){
-			while (thread.getState() == Thread.State.NEW);
-		}
-		
 		// @TODO: Implement other coverage criteria here, 
 		// probably as a list of pairs, where the first element is the thread ID
 		// and the second element is the number of instructions to run for that thread
@@ -78,11 +74,16 @@ public class THTestManager {
 					semaphore.release(1);
 					do
 					{
+						// The thread is blocked on something else
+						if (!semaphore.hasQueuedThreads() && 
+							(thread.getState() == Thread.State.WAITING || 
+							thread.getState() == Thread.State.BLOCKED || 
+							thread.getState() == Thread.State.TIMED_WAITING))
+						{
+							break;
+						}
 						Thread.yield();
-					} while (semaphore.availablePermits() != 0 && thread.isAlive() && 
-								!(thread.getState() == Thread.State.WAITING || 
-								thread.getState() == Thread.State.BLOCKED || 
-								thread.getState() == Thread.State.TIMED_WAITING));
+					} while (!semaphore.hasQueuedThreads() && thread.isAlive());
 					
 					if (semaphore.availablePermits() == 0) {
 						deadlockExists = false;
@@ -90,6 +91,7 @@ public class THTestManager {
 				} else {
 					semaphoreMap.remove(threadId);
 					threadsToRemove.add(thread);
+					deadlockExists = false;
 				}
 			}
 			
