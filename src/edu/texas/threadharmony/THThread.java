@@ -18,11 +18,12 @@ public class THThread extends Thread {
 	public void run() {
 		try {
 			testClass.getMethod(this.testMethodName).invoke(this.test);
+		} catch (InvocationTargetException e) {
+			// Do nothing as of now
 		} catch (
 			IllegalAccessException | 
 			IllegalArgumentException | 
-			InvocationTargetException | 
-			NoSuchMethodException | 
+			NoSuchMethodException |
 			SecurityException e
 		) {
 			e.printStackTrace();

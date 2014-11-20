@@ -5,22 +5,39 @@ import edu.texas.threadharmony.THTestManager;
 
 public class MyTest extends THTestManager.THTest {
 	
+	static Object mutex = new Object();
 	static double d = 0;
 	
-	@Interleavable(numberOfThreads=4)
+	private void pause(int testArg) {
+				
+		synchronized (mutex) {
+			
+			try {
+				mutex.wait();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+			}
+		}
+	}
+	
+	@Interleavable()
 	public void testMethod() {
 		double a = 2.0;
 		double b = 5.0;
 		double c = Math.sqrt(a * a + b * b) + d;
+		{
+			pause(5);
+		}
 		System.out.println("The hypotenuse is " + c);
 	}
 	
-	@Interleavable(numberOfThreads=10)
+	@Interleavable()
 	public void testMethod2() {
 		
 		double a = 7.0;
 		double b = 9.0;
 		double c = Math.sqrt(a * a + b * b) + d;
+		pause((int) a);
 		System.out.println("The hypotenuse is " + c);
 	}
 }

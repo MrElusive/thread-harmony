@@ -9,13 +9,15 @@ import java.util.Map;
 import java.util.concurrent.Semaphore;
 
 /*
- * Deadlock detection
- * Tracing
+ * -Deadlock detection (sort of works)
+ * -Tracing (sort of works)
+ * Need to figure out how to deal with certain constructs when instrumenting the code: i.e. try/catch blocks
  * Renaming
  * Cleanup
  * Criteria
  * Focusing on single variables
  * Test examples
+ * Following methods to interleave
  * 	Deadlock
  * 	Read/Write
  */
@@ -60,30 +62,55 @@ public class THTestManager {
 		}
 		
 		// @TODO: Implement other coverage criteria here, 
-		// possibly as a map of lists of integers that are simply fed in to the semaphores
+		// probably as a list of pairs, where the first element is the thread ID
+		// and the second element is the number of instructions to run for that thread
 		
 		while (!semaphoreMap.isEmpty()) {
 			List<Thread> threadsToRemove = new ArrayList<Thread>();
+			boolean deadlockExists = true;
 			
 			for (Thread thread : threads) {
 				
 				long threadId = thread.getId();
-				if (thread.isAlive()) {
-					semaphoreMap.get(thread.getId()).release(10);
-					while (semaphoreMap.get(threadId).availablePermits() != 0 && thread.isAlive())
+				Semaphore semaphore = semaphoreMap.get(threadId);
+				
+				if (thread.isAlive()) {					
+					semaphore.release(1);
+					do
 					{
 						Thread.yield();
-					}
+					} while (semaphore.availablePermits() != 0 && thread.isAlive() && 
+								!(thread.getState() == Thread.State.WAITING || 
+								thread.getState() == Thread.State.BLOCKED || 
+								thread.getState() == Thread.State.TIMED_WAITING));
 					
+					if (semaphore.availablePermits() == 0) {
+						deadlockExists = false;
+					}
 				} else {
 					semaphoreMap.remove(threadId);
 					threadsToRemove.add(thread);
 				}
 			}
 			
+			if (deadlockExists) {
+				System.out.println("Deadlock exists or some threads are stuck!");
+				try {
+				for (Thread thread : threads) {
+					thread.stop();
+				}
+				} catch (ThreadDeath e)
+				{
+					
+				}
+				threads.clear();
+				semaphoreMap.clear();
+			}
+			
 			threads.removeAll(threadsToRemove);
 		}
 		
+		System.out.println("Execution Order: ");
 		System.out.println(THTest.executionOrder);
 	}
 	
