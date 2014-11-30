@@ -116,4 +116,8 @@ public class THTest {
 	public boolean isThreadRunning(long threadId) {
 		return threadMap.get(threadId).isAlive();
 	}
+	
+	public static void main(String[] args) {
+		
+	}
 }
