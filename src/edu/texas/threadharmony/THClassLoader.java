@@ -7,31 +7,36 @@ import org.apache.bcel.Constants;
 import org.apache.bcel.classfile.AnnotationEntry;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
+import org.apache.bcel.generic.ClassGen;
 import org.apache.bcel.generic.ConstantPoolGen;
+import org.apache.bcel.generic.EmptyVisitor;
+import org.apache.bcel.generic.Instruction;
 import org.apache.bcel.generic.InstructionFactory;
 import org.apache.bcel.generic.InstructionHandle;
 import org.apache.bcel.generic.InstructionList;
 import org.apache.bcel.generic.InvokeInstruction;
 import org.apache.bcel.generic.MethodGen;
+import org.apache.bcel.generic.PUTFIELD;
 import org.apache.bcel.generic.Type;
 import org.apache.bcel.util.ClassLoader;
+
+import edu.texas.threadharmony.builder.SharedVariableOPCodeVisitor;
 
 public class THClassLoader extends ClassLoader {
 	
 	private List<String> testMethodNames;
-	
+	private ConstantPoolGen constantPoolGen;
 	
 	
 	public THClassLoader() {
 		super(new String[] { "java.", "sun.", "javax.", "edu.texas.threadharmony" });
-		
 		testMethodNames = new ArrayList<String>();
 	}
 
 	@Override
 	protected JavaClass modifyClass(JavaClass clazz) {
 				
-		ConstantPoolGen constantPoolGen = new ConstantPoolGen(clazz.getConstantPool());
+		this.constantPoolGen = new ConstantPoolGen(clazz.getConstantPool());
 					
 		String expectedTypeName = Interleavable.class.getName();
 		Method[] methods = clazz.getMethods();
@@ -62,17 +67,27 @@ public class THClassLoader extends ClassLoader {
 				
 		InvokeInstruction contextSwitchInstruction = 
 			instructionFactory.createInvoke(
-				THTestManager.THTest.class.getName(), 
-				THTestManager.THTest.contextSwitchMethodName, 
+				THTest.class.getName(), 
+				THTest.CONTEXTSWITCHMETHODNAME, 
 				Type.VOID, 
 				Type.NO_ARGS, 
 				Constants.INVOKESTATIC
 			);
-				
+			
+		SharedVariableOPCodeVisitor fieldOrStaticOPCodeVisitor = new SharedVariableOPCodeVisitor("myVariable", constantPoolGen);
+		
 		InstructionList instructionList = methodGen.getInstructionList();
 		InstructionHandle instructionHandle = instructionList.getStart();
-		while (instructionHandle != instructionList.getEnd()) {			
-			instructionHandle = instructionList.append(instructionHandle, contextSwitchInstruction).getNext();
+		while (instructionHandle != instructionList.getEnd()) {
+			instructionHandle.accept(fieldOrStaticOPCodeVisitor);
+			
+			if (fieldOrStaticOPCodeVisitor.operatesOnSharedVariable()) {
+				instructionList.insert(instructionHandle, contextSwitchInstruction);
+			}
+			
+			fieldOrStaticOPCodeVisitor.clear();
+			
+			instructionHandle = instructionHandle.getNext();
 		}
 		
 		return methodGen.getMethod();		

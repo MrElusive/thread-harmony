@@ -1,18 +1,15 @@
 package edu.texas.threadharmony;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.concurrent.Semaphore;
 
 import org.apache.bcel.classfile.ClassFormatException;
-import org.apache.bcel.classfile.ClassParser;
-import org.apache.bcel.util.ClassLoader;
 
 public class ThreadHarmony {
 
 	public static void main(String[] args) {
 		try {
-			THTestManager.executeTest("tests.MyTest");
+			//THTestManager.executeTest("tests.MyTest");
+			THTestManager.executeTest(args[0]);
 			/*
 			String classFilePath = "/home/clemons/workspace/ThreadHarmony/bin/edu/texas/threadharmony/TestClass.class";		
 //			ClassParser classParser = new ClassParser(classFilePath);

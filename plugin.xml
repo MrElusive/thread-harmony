@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+         name="ThreadHarmony Test"
+         id="edu.texas.threadharmony.plugin.launchConfigurationType.thtest"
+         delegate="edu.texas.threadharmony.plugin.THTestLaunchConfigurationDelegate"
+         modes="run, debug">
+      </launchConfigurationType>
+   </extension>   
+   
+   <extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+         icon="icons/th_icon.gif"
+         configTypeID="edu.texas.threadharmony.plugin.launchConfigurationType.thtest"
+         id="edu.texas.threadharmony.plugin.launchConfigurationTypeImage.thtest">
+      </launchConfigurationTypeImage>
+   </extension>
+
+   <extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+         type="edu.texas.threadharmony.plugin.launchConfigurationType.thtest"
+         class="edu.texas.threadharmony.plugin.THTestTabGroup"
+         id="edu.texas.threadharmony.plugin.launchConfigurationTabGroup.thtest">
+      </launchConfigurationTabGroup>
+   </extension>
+   
+   <extension id="thbuilder" name="ThreadHarmony Builder" point="org.eclipse.core.resources.builders">
+      <builder>
+         <run class="edu.texas.threadharmony.builder.THBuilder">
+         </run>
+      </builder>
+   </extension> 
+</plugin>

@@ -1,9 +1,9 @@
 package tests;
 
 import edu.texas.threadharmony.Interleavable;
-import edu.texas.threadharmony.THTestManager;
+import edu.texas.threadharmony.THTest;
 
-public class MyTest extends THTestManager.THTest {
+public class MyTest extends THTest {
 	
 	static Object mutex = new Object();
 	static double d = 0;
@@ -26,13 +26,15 @@ public class MyTest extends THTestManager.THTest {
 		double b = 5.0;
 		double c = Math.sqrt(a * a + b * b) + d;
 		{
-			pause(5);
+			//pause(5);
 		}
 		for (int i = 0; i < 10; i ++) {
 			b = c;
 			
 		}
 		System.out.println("The hypotenuse is " + c);
+		TestImportClass testImport = new TestImportClass();
+		testImport.followMethod();
 	}
 	
 	@Interleavable()
