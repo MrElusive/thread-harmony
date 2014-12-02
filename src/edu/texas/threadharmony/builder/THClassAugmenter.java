@@ -19,6 +19,7 @@ import org.apache.bcel.generic.InstructionHandle;
 import org.apache.bcel.generic.InstructionList;
 import org.apache.bcel.generic.InvokeInstruction;
 import org.apache.bcel.generic.MethodGen;
+import org.apache.bcel.generic.PUSH;
 import org.apache.bcel.generic.SimpleElementValueGen;
 import org.apache.bcel.generic.Type;
 
@@ -85,7 +86,7 @@ public class THClassAugmenter {
 				THTest.class.getName(), 
 				THTest.CONTEXTSWITCHMETHODNAME, 
 				Type.VOID, 
-				Type.NO_ARGS, 
+				new Type[] { Type.STRING, Type.STRING }, 
 				Constants.INVOKESTATIC
 			);
 		
@@ -99,6 +100,8 @@ public class THClassAugmenter {
 			instructionHandle.accept(sharedVariableOPCodeVisitor);
 			
 			if (sharedVariableOPCodeVisitor.operatesOnSharedVariable()) {
+				instructionList.insert(instructionHandle, instructionFactory.createConstant(sharedVariableOPCodeVisitor.getSharedVariableName()));
+				instructionList.insert(instructionHandle, instructionFactory.createConstant(instructionHandle.getInstruction().getName()));
 				instructionList.insert(instructionHandle, contextSwitchInstruction);
 				numberOfInterleaves++;
 			}
@@ -115,6 +118,7 @@ public class THClassAugmenter {
         // @TODO: We'll need to fix this later, but for now, we only expect there to be one annotation for the method.
         methodGen.removeAnnotationEntries();
         methodGen.addAnnotationEntry(annotationEntryGen);
+		methodGen.setMaxStack();
 		
 		return methodGen.getMethod();		
 	}

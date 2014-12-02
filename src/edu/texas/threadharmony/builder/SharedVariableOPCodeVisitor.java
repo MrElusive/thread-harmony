@@ -15,6 +15,7 @@ public class SharedVariableOPCodeVisitor extends EmptyVisitor {
 	private ConstantPoolGen constantPoolGen;
 	
 	private boolean operatesOnSharedVariable = false;
+	private String sharedVariableName = "";
 	
 	public SharedVariableOPCodeVisitor(String sharedVariableName, ConstantPoolGen constantPoolGen) {
 		this.sharedVariablesNames = new HashSet<String>();
@@ -29,22 +30,22 @@ public class SharedVariableOPCodeVisitor extends EmptyVisitor {
 
 	@Override
 	public void visitPUTFIELD(PUTFIELD obj) {
-		checkReferencedNameIsSharedVariable(obj.getFieldName(constantPoolGen));
+		checkIfReferencedNameIsSharedVariable(obj.getFieldName(constantPoolGen));
 	}
 	
 	@Override
 	public void visitPUTSTATIC(PUTSTATIC obj) {
-		checkReferencedNameIsSharedVariable(obj.getFieldName(constantPoolGen));
+		checkIfReferencedNameIsSharedVariable(obj.getFieldName(constantPoolGen));
 	}
 	
 	@Override
 	public void visitGETFIELD(GETFIELD obj) {
-		checkReferencedNameIsSharedVariable(obj.getFieldName(constantPoolGen));
+		checkIfReferencedNameIsSharedVariable(obj.getFieldName(constantPoolGen));
 	}
 	
 	@Override
 	public void visitGETSTATIC(org.apache.bcel.generic.GETSTATIC obj) {
-		checkReferencedNameIsSharedVariable(obj.getFieldName(constantPoolGen));
+		checkIfReferencedNameIsSharedVariable(obj.getFieldName(constantPoolGen));
 	};
 	
 	public boolean operatesOnSharedVariable() {
@@ -55,8 +56,14 @@ public class SharedVariableOPCodeVisitor extends EmptyVisitor {
 		operatesOnSharedVariable = false;
 	}
 	
-	private void checkReferencedNameIsSharedVariable(String referencedName) {
+	private void checkIfReferencedNameIsSharedVariable(String referencedName) {
 		operatesOnSharedVariable = this.sharedVariablesNames.contains(referencedName);
+		if (operatesOnSharedVariable) {
+			this.sharedVariableName = referencedName;
+		}
 	}
-	
+
+	public String getSharedVariableName() {
+		return sharedVariableName;
+	}
 }

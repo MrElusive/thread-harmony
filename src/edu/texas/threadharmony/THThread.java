@@ -1,9 +1,14 @@
 package edu.texas.threadharmony;
 
+import java.io.IOException;
 import java.lang.Thread.State;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import org.apache.bcel.classfile.ClassFormatException;
 
 public class THThread implements Runnable {
 	
@@ -15,20 +20,21 @@ public class THThread implements Runnable {
 	
 	private long id;
 	private Thread thread;
-	
-	private int numberOfInterleavableInstructions;
 
-	public THThread(THTest test, String testMethodName) throws NoSuchMethodException, SecurityException {
+	private SharedVariableAnalyzer sharedVariableAnalyzer;
+	private boolean ignoreInterleaveInstruction;
+
+	public THThread(THTest test, String testMethodName, Set<String> sharedVariables) throws NoSuchMethodException, SecurityException, ClassNotFoundException, ClassFormatException, IOException {
 		this.test = test;
 		this.testMethodName = testMethodName;
-		this.numberOfInterleavableInstructions = test.getClass().getMethod(testMethodName).getAnnotation(Interleavable.class).numberOfInterleaves();
+		
 		this.id = idCounter++;
+		this.thread = null;
+		
+		this.sharedVariableAnalyzer = new SharedVariableAnalyzer(test.getClass().getName(), testMethodName, sharedVariables);
+		this.ignoreInterleaveInstruction = true;
 	}
 	
-	public THThread(int numberOfInterleavableInstructions) {
-		this.numberOfInterleavableInstructions = numberOfInterleavableInstructions;
-	}
-
 	@Override
 	public void run() {
 		try {
@@ -46,7 +52,7 @@ public class THThread implements Runnable {
 	}
 
 	public int getNumberOfInterleaves() {
-		return numberOfInterleavableInstructions;
+		return this.sharedVariableAnalyzer.getNumberOfReferences(test.getTargetSharedVariableName());
 	}
 
 	public void start() {
@@ -74,6 +80,10 @@ public class THThread implements Runnable {
 		return "Thread " + this.id;
 	}
 
+	public String getTestMethodName() {
+		return testMethodName;
+	}
+
 	public static THThread currentThread() {
 		Thread currentThread =  Thread.currentThread();
 		return THThread.threadMap.get(currentThread.getId());
@@ -82,6 +92,18 @@ public class THThread implements Runnable {
 	public THTest getTest() {
 		return this.test;
 	}
+
+	public boolean getIgnoreInterleaveInstruction() {
+		return this.ignoreInterleaveInstruction;
+	}
 	
+	public void setIgnoreInterleaveInstruction(boolean ignoreInterleaveInstruction) {
+		this.ignoreInterleaveInstruction = ignoreInterleaveInstruction;
+	}
 	
+	public static void configureThreadsForInterleaving(List<THThread> threads, boolean interleave) {
+		for (THThread thread : threads) {			
+			thread.setIgnoreInterleaveInstruction(!interleave);
+		}
+	}
 }

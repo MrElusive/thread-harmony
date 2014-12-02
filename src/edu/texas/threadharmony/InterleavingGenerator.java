@@ -20,8 +20,8 @@ public class InterleavingGenerator implements Iterable<Interleaving> {
 	
 	public static void main(String[] args) {
 		List<THThread> threads = new ArrayList<THThread>();
-		threads.add(new THThread(2));
-		threads.add(new THThread(2));
+		//threads.add(new THThread());
+		//threads.add(new THThread());
 		//threads.add(new THThread(4));
 		//threads.add(new THThread(4));
 		

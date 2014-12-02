@@ -65,7 +65,6 @@ public class THBuilder extends IncrementalProjectBuilder {
 		try {
 			for (IPath path : this.classFilesToProcess) {
 				String classFilePath = path.toOSString(); 
-				
                 ClassParser parser = new ClassParser(classFilePath);
                 JavaClass clazz = parser.parse();
                 
